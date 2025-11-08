@@ -60,3 +60,52 @@ char** tokenize(char* cmdline) {
     arglist[argnum] = NULL;
     return arglist;
 }
+
+
+int handle_builtin(char **args) {
+    if (args[0] == NULL)
+        return 1;  // empty command, do nothing
+	    
+		
+	// ======== history ========
+	if (strcmp(args[0], "history") == 0) {
+    for (int i = 0; i < history_count; i++)
+        printf("%d  %s\n", i + 1, history[i]);
+    return 1;
+}
+
+    // ======== exit ========
+    if (strcmp(args[0], "exit") == 0) {
+        printf("Exiting MyShell...\n");
+        exit(0);   // terminate shell process
+    }
+
+    // ======== cd ========
+    if (strcmp(args[0], "cd") == 0) {
+        if (args[1] == NULL) {
+            fprintf(stderr, "cd: missing argument\n");
+        } else if (chdir(args[1]) != 0) {
+            perror("cd failed");
+        }
+        return 1;  // handled successfully
+    }
+
+    // ======== help ========
+    if (strcmp(args[0], "help") == 0) {
+        printf("Available built-in commands:\n");
+        printf("  cd <directory>   - Change the current directory\n");
+        printf("  help             - Display this help message\n");
+        printf("  jobs             - List background jobs (placeholder)\n");
+        printf("  exit             - Exit the shell\n");
+        return 1;
+    }
+
+    // ======== jobs ========
+    if (strcmp(args[0], "jobs") == 0) {
+        printf("Job control not yet implemented.\n");
+        return 1;
+    }
+
+    // ======== not a built-in ========
+    return 0;
+}

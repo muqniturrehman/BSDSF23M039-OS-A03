@@ -110,6 +110,21 @@ int handle_builtin(char **args) {
     return 1;
 }
 
+	if (strcmp(args[0], "fg") == 0) {
+    if (args[1] && args[1][0] == '%')
+        fg_command(atoi(args[1] + 1));
+    else
+        printf("Usage: fg %%<job_id>\n");
+    return 1;
+}
+
+	if (strcmp(args[0], "bg") == 0) {
+    if (args[1] && args[1][0] == '%')
+        bg_command(atoi(args[1] + 1));
+    else
+        printf("Usage: bg %%<job_id>\n");
+    return 1;
+}
 
     // ======== not a built-in ========
     return 0;

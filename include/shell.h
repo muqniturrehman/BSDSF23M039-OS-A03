@@ -38,5 +38,7 @@ char** tokenize(char* cmdline);
 int execute(char** arglist);
 int handle_builtin(char **args);
 int execute_pipe(char ***cmds);
+void fg_command(int job_id);
+void bg_command(int job_id);
 
 #endif // SHELL_H

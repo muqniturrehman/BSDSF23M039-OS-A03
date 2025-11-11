@@ -95,3 +95,41 @@ void check_jobs() {
         }
     }
 }
+#include <signal.h>
+#include <termios.h>
+
+void fg_command(int job_id) {
+    if (job_id <= 0 || job_id > job_count) {
+        printf("fg: invalid job id\n");
+        return;
+    }
+
+    struct job *j = &jobs[job_id - 1];
+    if (!j->active) {
+        printf("fg: job [%d] already finished\n", job_id);
+        return;
+    }
+
+    printf("Bringing [%d] %s to foreground\n", j->pid, j->command);
+    tcsetpgrp(STDIN_FILENO, j->pid);     // give terminal control
+    kill(j->pid, SIGCONT);               // resume if stopped
+    waitpid(j->pid, NULL, 0);            // wait for completion
+    tcsetpgrp(STDIN_FILENO, getpgrp());  // restore shell control
+    j->active = 0;
+}
+
+void bg_command(int job_id) {
+    if (job_id <= 0 || job_id > job_count) {
+        printf("bg: invalid job id\n");
+        return;
+    }
+
+    struct job *j = &jobs[job_id - 1];
+    if (!j->active) {
+        printf("bg: job [%d] already finished\n", job_id);
+        return;
+    }
+
+    printf("Resuming [%d] %s in background\n", j->pid, j->command);
+    kill(j->pid, SIGCONT);
+}

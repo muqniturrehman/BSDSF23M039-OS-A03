@@ -102,9 +102,14 @@ int handle_builtin(char **args) {
 
     // ======== jobs ========
     if (strcmp(args[0], "jobs") == 0) {
-        printf("Job control not yet implemented.\n");
-        return 1;
+    check_jobs();
+    for (int i = 0; i < job_count; i++) {
+        if (jobs[i].active)
+            printf("[%d] %d  %s\n", jobs[i].id, jobs[i].pid, jobs[i].command);
     }
+    return 1;
+}
+
 
     // ======== not a built-in ========
     return 0;

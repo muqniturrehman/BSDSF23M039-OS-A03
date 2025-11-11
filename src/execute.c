@@ -6,6 +6,9 @@
 #include <sys/types.h>  // pid_t
 #include <sys/wait.h>   // waitpid
 #include "shell.h"
+
+struct job jobs[MAX_JOBS];
+int job_count = 0;
 int execute(char* arglist[]) {
     int status;
     pid_t cpid;
@@ -33,6 +36,7 @@ int execute(char* arglist[]) {
     } 
     else { // parent
         if (background) {
+			add_job(cpid, arglist[0]);
             printf("[BG] Process running in background (PID: %d)\n", cpid);
         } else {
             waitpid(cpid, &status, 0);
@@ -71,4 +75,23 @@ int execute_pipe(char ***cmds) {
         }
     }
     return 0;
+}
+void add_job(pid_t pid, char *cmdline) {
+    if (job_count < MAX_JOBS) {
+        jobs[job_count].id = job_count + 1;
+        jobs[job_count].pid = pid;
+        strncpy(jobs[job_count].command, cmdline, sizeof(jobs[job_count].command));
+        jobs[job_count].active = 1;
+        job_count++;
+    }
+}
+
+void check_jobs() {
+    int status;
+    for (int i = 0; i < job_count; i++) {
+        if (jobs[i].active && waitpid(jobs[i].pid, &status, WNOHANG) > 0) {
+            jobs[i].active = 0;
+            printf("[DONE] %d  %s\n", jobs[i].pid, jobs[i].command);
+        }
+    }
 }
